@@ -1056,6 +1056,129 @@ footer {
   margin-right: 6px;
 }
 
+/*===============
+  Thank You Page
+=================*/
+
+.thank-you-page {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  background: #0a0a0f;
+}
+
+.thank-you-card {
+  width: 100%;
+  max-width: 600px;
+  padding: 50px 40px;
+  text-align: center;
+
+  background: rgba(15, 15, 25, 0.95);
+  border: 1px solid rgba(0, 255, 200, 0.25);
+  border-radius: 16px;
+
+  box-shadow:
+    0 0 30px rgba(0, 255, 200, 0.08),
+    inset 0 0 30px rgba(0, 255, 200, 0.02);
+
+  backdrop-filter: blur(10px);
+}
+
+.success-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 25px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 2px solid #00ffc8;
+  border-radius: 50%;
+
+  color: #00ffc8;
+  font-size: 42px;
+  font-weight: bold;
+
+  box-shadow:
+    0 0 15px rgba(0, 255, 200, 0.25),
+    0 0 40px rgba(0, 255, 200, 0.08);
+}
+
+.thank-you-card h1 {
+  margin-bottom: 15px;
+
+  color: #ffffff;
+  font-size: 32px;
+  font-weight: 700;
+}
+
+.thank-you-card p {
+  margin: 10px 0;
+
+  color: #a0a0b0;
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+.redirect-text {
+  margin-top: 25px !important;
+  color: #777785 !important;
+  font-size: 14px !important;
+}
+
+#countdown {
+  color: #00ffc8;
+  font-weight: 700;
+}
+
+.back-btn {
+  display: inline-block;
+  margin-top: 25px;
+  padding: 12px 25px;
+
+  color: #00ffc8;
+  text-decoration: none;
+
+  border: 1px solid #00ffc8;
+  border-radius: 8px;
+
+  transition: all 0.3s ease;
+}
+
+.back-btn:hover {
+  background: #00ffc8;
+  color: #0a0a0f;
+
+  box-shadow: 0 0 20px rgba(0, 255, 200, 0.3);
+}
+
+/*===========
+  Responsive
+=============*/
+
+@media (max-width: 600px) {
+  .thank-you-card {
+    padding: 40px 25px;
+  }
+
+  .thank-you-card h1 {
+    font-size: 25px;
+  }
+
+  .thank-you-card p {
+    font-size: 14px;
+  }
+
+  .success-icon {
+    width: 70px;
+    height: 70px;
+    font-size: 36px;
+  }
+}
+
 /*=============*
   End of File
 *=============*/
