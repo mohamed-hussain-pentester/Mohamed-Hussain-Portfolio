@@ -1,0 +1,1 @@
+Put your real certificate PDF files in this folder, then update the corresponding file name in index.html.
