@@ -154,17 +154,13 @@ https://YOUR-USERNAME.github.io/REPOSITORY-NAME/
 
 ## 🔗 Links
 
-**Email**
+* **Live Portfolio:** [https://mohamed-hussain-pentester.github.io/Mohamed-Hussain-Porfolio/](https://mohamed-hussain-pentester.github.io/Mohamed-Hussain-Porfolio/)
 
-mohamed.hussain.pentester@gmail.com
+* **Email:** [mohamed.hussain.pentester@gmail.com](mailto:mohamed.hussain.pentester@gmail.com)
 
-**LinkedIn**
+* **LinkedIn:** [https://www.linkedin.com/in/mohamed-hussain-pentester/](https://www.linkedin.com/in/mohamed-hussain-pentester/)
 
-https://www.linkedin.com/in/mohamed-hussain-pentester/
-
-**GitHub**
-
-https://github.com/mohamed-hussain-pentester
+* **GitHub:** [https://github.com/mohamed-hussain-pentester](https://github.com/mohamed-hussain-pentester)
 
 ---
 
