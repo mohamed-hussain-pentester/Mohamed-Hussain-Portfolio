@@ -4,19 +4,18 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="style.css" />
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="assets/images/codespaces-svgrepo-com.svg"
+    />
     <title>Mohamed Hussain | CV</title>
-
-    <!-- PDF.js -->
-    <script
-      src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.min.mjs"
-      type="module"
-    ></script>
   </head>
 
   <body>
-    <!-- =================================
-         NAVBAR
-    ================================= -->
+    <!-- =======
+        NAVBAR
+    ========= -->
 
     <header class="site-header">
       <nav class="wrap nav" aria-label="Primary navigation">
@@ -44,23 +43,13 @@
           >
             Home
           </a>
-
-          <button
-            class="mobile-menu-button"
-            id="mobileMenuButton"
-            type="button"
-            aria-label="Open navigation menu"
-            aria-expanded="false"
-          >
-            ☰
-          </button>
         </div>
       </nav>
     </header>
 
-    <!-- =================================
-         CV TOOLBAR
-    ================================= -->
+    <!-- ============
+        CV TOOLBAR
+    ============== -->
 
     <div class="cv-toolbar">
       <button class="btn btn-secondary" id="zoomOut" type="button">
@@ -84,180 +73,180 @@
       </a>
     </div>
 
-    <!-- =================================
-         PDF VIEWER
-    ================================= -->
+    <!-- =============
+        PDF VIEWER
+    =============== -->
 
     <main class="viewer-container">
       <div id="pdf-container">
-        <p id="loading">Loading CV...</p>
+        <!-- PDF Loading Screen -->
+        <div id="loading" class="cv-loader">
+          <div class="loader-icon">
+            <span class="loader-icon-text">PDF</span>
+          </div>
 
-        <div id="error">
-          <strong> Unable to display the CV. </strong>
+          <div class="loader-content">
+            <div class="loader-title">
+              <span class="loader-prompt">></span>
+              LOADING_CV
+              <span class="loader-dots">
+                <span>.</span>
+                <span>.</span>
+                <span>.</span>
+              </span>
+            </div>
 
-          Please use the Download CV button to open the PDF directly.
+            <p class="loader-status" id="loading-status">
+              Initializing PDF viewer...
+            </p>
+
+            <div class="loader-progress">
+              <div class="loader-progress-bar" id="loading-progress"></div>
+            </div>
+
+            <span class="loader-percentage" id="loading-percentage"> 0% </span>
+          </div>
+        </div>
+
+        <!-- PDF Error -->
+        <div id="error" class="cv-error">
+          <div class="error-icon">
+            <span class="error-icon-text">!</span>
+          </div>
+
+          <div>
+            <strong>Unable to display the CV.</strong>
+
+            <p>Please use the Download CV button to open the PDF directly.</p>
+          </div>
         </div>
       </div>
     </main>
 
-    <!-- =================================
-         PDF.JS
-    ================================= -->
+    <!--=========
+        PDF.JS
+    ==========-->
 
     <script type="module">
-      import * as pdfjsLib from "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.min.mjs";
-
-      pdfjsLib.GlobalWorkerOptions.workerSrc =
-        "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.worker.min.mjs";
-
       const pdfUrl = "assets/certificates/MOHAMED_HUSSAIN_CV.pdf";
+      const pdfJsUrl =
+        "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.min.mjs";
 
       const container = document.getElementById("pdf-container");
-
       const loading = document.getElementById("loading");
-
       const error = document.getElementById("error");
-
       const zoomIn = document.getElementById("zoomIn");
-
       const zoomOut = document.getElementById("zoomOut");
-
       const printButton = document.getElementById("printButton");
 
-      const mobileMenuButton = document.getElementById("mobileMenuButton");
-
-      const mobileMenu = document.getElementById("mobileMenu");
-
       let pdf = null;
-
       let scale = 1.3;
-
-      /* =================================
-         LOAD PDF
-      ================================= */
 
       async function loadPDF() {
         try {
+          const pdfjsLib = await import(pdfJsUrl);
+
+          pdfjsLib.GlobalWorkerOptions.workerSrc =
+            "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.worker.min.mjs";
+
+          const status = document.getElementById("loading-status");
+
+          const progress = document.getElementById("loading-progress");
+
+          const percentage = document.getElementById("loading-percentage");
+
+          // Step 1
+          status.textContent = "Initializing PDF viewer...";
+
+          progress.style.width = "15%";
+          percentage.textContent = "15%";
+
+          await new Promise((resolve) => setTimeout(resolve, 300));
+
+          // Step 2
+          status.textContent = "Loading CV document...";
+
+          progress.style.width = "30%";
+          percentage.textContent = "30%";
+
           pdf = await pdfjsLib.getDocument(pdfUrl).promise;
 
-          loading.remove();
+          // Step 3
+          status.textContent = `Rendering ${pdf.numPages} page${pdf.numPages > 1 ? "s" : ""}...`;
 
           for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
             await renderPage(pageNumber);
+
+            const renderProgress = 30 + (pageNumber / pdf.numPages) * 60;
+
+            progress.style.width = `${renderProgress}%`;
+
+            percentage.textContent = `${Math.round(renderProgress)}%`;
+
+            status.textContent = `Rendering page ${pageNumber} of ${pdf.numPages}...`;
           }
+
+          // Finished
+          progress.style.width = "100%";
+          percentage.textContent = "100%";
+
+          status.textContent = "CV loaded successfully.";
+
+          await new Promise((resolve) => setTimeout(resolve, 400));
+
+          loading.style.opacity = "0";
+
+          await new Promise((resolve) => setTimeout(resolve, 300));
+
+          loading.remove();
         } catch (err) {
           console.error("PDF loading error:", err);
 
           loading.remove();
 
-          error.style.display = "block";
+          error.style.display = "flex";
         }
       }
 
-      /* =================================
-         RENDER PAGE
-      ================================= */
-
       async function renderPage(pageNumber) {
         const page = await pdf.getPage(pageNumber);
-
-        const viewport = page.getViewport({
-          scale: scale,
-        });
-
+        const viewport = page.getViewport({ scale });
         const canvas = document.createElement("canvas");
-
         canvas.className = "pdf-page";
-
         const context = canvas.getContext("2d");
-
+        if (!context) {
+          throw new Error("Unable to create a canvas context for the CV.");
+        }
         canvas.width = viewport.width;
-
         canvas.height = viewport.height;
-
-        await page.render({
-          canvasContext: context,
-
-          viewport: viewport,
-        }).promise;
-
+        await page.render({ canvasContext: context, viewport }).promise;
         container.appendChild(canvas);
       }
 
-      /* =================================
-         RELOAD PDF
-      ================================= */
-
       async function reloadPDF() {
         if (!pdf) return;
-
         const canvases = container.querySelectorAll(".pdf-page");
-
         canvases.forEach((canvas) => canvas.remove());
-
         for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
           await renderPage(pageNumber);
         }
       }
 
-      /* =================================
-         ZOOM IN
-      ================================= */
-
       zoomIn.addEventListener("click", async () => {
         if (scale >= 2.5) return;
-
         scale += 0.2;
-
         await reloadPDF();
       });
-
-      /* =================================
-         ZOOM OUT
-      ================================= */
 
       zoomOut.addEventListener("click", async () => {
         if (scale <= 0.6) return;
-
         scale -= 0.2;
-
         await reloadPDF();
       });
-
-      /* =================================
-         PRINT
-      ================================= */
 
       printButton.addEventListener("click", () => {
         window.print();
       });
-
-      /* =================================
-         MOBILE MENU
-      ================================= */
-
-      mobileMenuButton.addEventListener("click", () => {
-        const isOpen = mobileMenu.classList.toggle("open");
-
-        mobileMenuButton.setAttribute("aria-expanded", isOpen);
-      });
-
-      /* =================================
-         CLOSE MOBILE MENU
-         AFTER CLICK
-      ================================= */
-
-      mobileMenu.querySelectorAll("a").forEach((link) => {
-        link.addEventListener("click", () => {
-          mobileMenu.classList.remove("open");
-
-          mobileMenuButton.setAttribute("aria-expanded", "false");
-        });
-      });
-
-      /* =================================
-         START
-      ================================= */
 
       loadPDF();
     </script>

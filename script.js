@@ -1,3 +1,34 @@
+const pageLoader = document.querySelector(".page-loader");
+
+if (pageLoader) {
+  let dismissed = false;
+
+  const dismissPageLoader = () => {
+    if (dismissed) return;
+    dismissed = true;
+
+    const startedAt = Number(
+      document.documentElement.dataset.pageLoaderStartedAt,
+    );
+    const elapsed = startedAt ? Date.now() - startedAt : 0;
+    const delay = Math.max(0, 500 - elapsed);
+
+    window.setTimeout(() => {
+      pageLoader.setAttribute("aria-hidden", "true");
+      document.documentElement.classList.remove("page-loading");
+      delete document.documentElement.dataset.pageLoaderStartedAt;
+    }, delay);
+  };
+
+  if (document.readyState === "complete") {
+    dismissPageLoader();
+  } else {
+    window.addEventListener("load", dismissPageLoader, { once: true });
+  }
+
+  window.setTimeout(dismissPageLoader, 8000);
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   const toast = document.getElementById("toast");
   const menu = document.getElementById("mobile-menu");
@@ -339,7 +370,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 /* =========================================
-   Mouse Glow Effect
+    Mouse Glow Effect
 ========================================= */
 const mouseGlow = document.querySelector(".mouse-glow");
 
@@ -372,6 +403,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const modalImage = document.getElementById("certificateModalImage");
   const closeButton = document.getElementById("certificateClose");
   const backdrop = document.querySelector(".certificate-backdrop");
+
+  if (!modal || !modalImage || !closeButton || !backdrop) return;
 
   const certificateLinks = document.querySelectorAll(
     ".certificate-link:not([data-action='download'])",

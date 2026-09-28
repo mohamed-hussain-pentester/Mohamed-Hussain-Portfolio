@@ -3,6 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      document.documentElement.classList.add("page-loading");
+      document.documentElement.dataset.pageLoaderStartedAt = Date.now();
+    </script>
     <title>Mohamed Hussain | Contact</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -22,6 +26,28 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
+    <div class="page-loader" aria-hidden="false">
+      <div class="cv-loader" role="status" aria-live="polite">
+        <div class="loader-icon" aria-hidden="true">
+          <span class="loader-icon-text">&gt;_</span>
+        </div>
+        <div class="loader-content">
+          <div class="loader-title">
+            <span class="loader-prompt">&gt;</span>
+            LOADING_CONTACT
+            <span class="loader-dots" aria-hidden="true">
+              <span>.</span>
+              <span>.</span>
+              <span>.</span>
+            </span>
+          </div>
+          <p class="loader-status">Preparing contact page...</p>
+          <div class="loader-progress" aria-hidden="true">
+            <div class="loader-progress-bar"></div>
+          </div>
+        </div>
+      </div>
+    </div>
     <header class="site-header">
       <nav class="wrap nav">
         <a href="index.html#home" class="brand">

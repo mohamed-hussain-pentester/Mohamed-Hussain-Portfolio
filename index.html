@@ -3,6 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      document.documentElement.classList.add("page-loading");
+      document.documentElement.dataset.pageLoaderStartedAt = Date.now();
+    </script>
     <meta
       name="description"
       content="Mohamed Hussain — Junior Penetration Tester portfolio focused on web security, network security, vulnerability assessment, and hands-on security labs."
@@ -31,6 +35,28 @@
     />
   </head>
   <body>
+    <div class="page-loader" aria-hidden="false">
+      <div class="cv-loader" role="status" aria-live="polite">
+        <div class="loader-icon" aria-hidden="true">
+          <span class="loader-icon-text">&gt;_</span>
+        </div>
+        <div class="loader-content">
+          <div class="loader-title">
+            <span class="loader-prompt">&gt;</span>
+            LOADING_PORTFOLIO
+            <span class="loader-dots" aria-hidden="true">
+              <span>.</span>
+              <span>.</span>
+              <span>.</span>
+            </span>
+          </div>
+          <p class="loader-status">Initializing portfolio...</p>
+          <div class="loader-progress" aria-hidden="true">
+            <div class="loader-progress-bar"></div>
+          </div>
+        </div>
+      </div>
+    </div>
     <div class="site-shell">
       <header class="site-header">
         <nav class="wrap nav" aria-label="Primary navigation">
@@ -51,7 +77,6 @@
             <a href="#methodology">Methodology</a>
             <a href="#projects">Projects</a>
             <a href="#labs">Labs</a>
-            <a href="#reports">Reports</a>
             <a href="#contact">Contact</a>
           </div>
 
@@ -83,7 +108,6 @@
             <a href="#methodology">Methodology</a>
             <a href="#projects">Projects</a>
             <a href="#labs">Labs</a>
-            <a href="#reports">Reports</a>
             <a href="#contact">Contact</a>
           </div>
         </div>
@@ -198,7 +222,7 @@
           <div class="wrap">
             <div class="reveal section-intro">
               <p class="eyebrow">Focus Areas</p>
-              <h2>What I Work On</h2>
+              <h2>Areas of Focus</h2>
             </div>
 
             <link
@@ -830,7 +854,7 @@
                   aria-label="WhatsApp"
                   title="WhatsApp"
                 >
-                  <i class="fa-brands fa-whatsapp" style="color: #25d366;"></i>
+                  <i class="fa-brands fa-whatsapp" style="color: #25d366"></i>
                 </a>
               </div>
               <div id="toast" class="hidden">Email copied to clipboard</div>
