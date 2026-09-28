@@ -409,6 +409,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const certificateLinks = document.querySelectorAll(
     ".certificate-link:not([data-action='download'])",
   );
+  let modalOpener = null;
 
   // Open certificate
   certificateLinks.forEach((link) => {
@@ -419,19 +420,24 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (!imagePath) return;
 
+      modalOpener = link;
       modalImage.src = imagePath;
 
+      modal.inert = false;
       modal.classList.add("active");
       modal.setAttribute("aria-hidden", "false");
 
       document.body.classList.add("modal-open");
 
-      closeButton.focus();
+      requestAnimationFrame(() => closeButton.focus());
     });
   });
 
   // Close modal
   function closeCertificateModal() {
+    modalOpener?.focus();
+    modalOpener = null;
+    modal.inert = true;
     modal.classList.remove("active");
     modal.setAttribute("aria-hidden", "true");
 
