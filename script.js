@@ -90,10 +90,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  document.querySelectorAll("#print-button").forEach((pBtn) => {
-    pBtn.addEventListener("click", () => window.print());
-  });
-
   const handleCopyEmail = async () => {
     try {
       if (navigator.clipboard?.writeText) {
@@ -109,28 +105,8 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   document
-    .getElementById("copyBtn")
-    ?.addEventListener("click", handleCopyEmail);
-  document
     .getElementById("copy-email")
     ?.addEventListener("click", handleCopyEmail);
-
-  document.querySelectorAll("#skill-filters .filter").forEach((button) => {
-    button.addEventListener("click", () => {
-      const selectedSkill = button.dataset.skill;
-      document
-        .querySelectorAll("#skill-filters .filter")
-        .forEach((b) => b.classList.remove("active"));
-      button.classList.add("active");
-
-      document.querySelectorAll("[data-skill-group]").forEach((item) => {
-        item.style.display =
-          selectedSkill === "all" || item.dataset.skillGroup === selectedSkill
-            ? ""
-            : "none";
-      });
-    });
-  });
 
   document.querySelectorAll("#project-filters .filter").forEach((button) => {
     button.addEventListener("click", () => {
@@ -151,41 +127,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  const modal = document.getElementById("pdf-modal");
-  const frame = document.getElementById("pdf-frame");
-
-  document.querySelectorAll("[data-pdf]").forEach((link) => {
-    link.addEventListener("click", (event) => {
-      const pdf = link.dataset.pdf;
-      if (!pdf || link.classList.contains("disabled-link")) return;
-      event.preventDefault();
-
-      if (link.dataset.action === "download") {
-        const anchor = document.createElement("a");
-        anchor.href = pdf;
-        anchor.download = pdf.split("/").pop();
-        document.body.appendChild(anchor);
-        anchor.click();
-        anchor.remove();
-        return;
-      }
-
-      if (modal && frame) {
-        frame.src = pdf;
-        modal.classList.add("open");
-        modal.setAttribute("aria-hidden", "false");
-      }
-    });
-  });
-
-  document.querySelectorAll("[data-close-modal]").forEach((element) => {
-    element.addEventListener("click", () => {
-      modal?.classList.remove("open");
-      modal?.setAttribute("aria-hidden", "true");
-      if (frame) frame.src = "";
-    });
-  });
-
   const observer = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
@@ -203,9 +144,6 @@ document.addEventListener("DOMContentLoaded", () => {
     .querySelectorAll(".reveal")
     .forEach((element) => observer.observe(element));
 
-  document.querySelectorAll(".disabled-link").forEach((link) => {
-    link.addEventListener("click", (event) => event.preventDefault());
-  });
 });
 
 /* =========================================
@@ -234,12 +172,8 @@ backToTop?.addEventListener("click", () => {
 ========================================= */
 document.addEventListener("DOMContentLoaded", () => {
   const terminal = document.getElementById("terminal-screen");
-  const typingText = document.getElementById("typing-text");
-  const cursor = document.getElementById("typing-cursor");
 
-  if (!terminal || !typingText || !cursor) {
-    return;
-  }
+  if (!terminal) return;
 
   const commands = [
     {
@@ -279,16 +213,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function delay(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms));
-  }
-
-  async function typeCommand(command) {
-    typingText.textContent = "";
-    cursor.style.display = "inline-block";
-
-    for (let i = 0; i < command.length; i++) {
-      typingText.textContent += command[i];
-      await delay(getTypingSpeed());
-    }
   }
 
   function createOutput(text, type) {
@@ -445,9 +369,7 @@ document.addEventListener("DOMContentLoaded", () => {
     link.addEventListener("click", (event) => {
       event.preventDefault();
 
-      const imagePath = link.dataset.pdf || link.getAttribute("href");
-
-      if (!imagePath) return;
+      const imagePath = link.href;
 
       modalOpener = link;
       modalImage.src = imagePath;
