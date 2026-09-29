@@ -143,7 +143,6 @@ document.addEventListener("DOMContentLoaded", () => {
   document
     .querySelectorAll(".reveal")
     .forEach((element) => observer.observe(element));
-
 });
 
 /* =========================================
@@ -189,15 +188,23 @@ document.addEventListener("DOMContentLoaded", () => {
     {
       command: "ls -la",
       output: `-rw-r--r--  focus_areas.txt
--rw-r--r--  targets.txt
+-rw-r--r--  supported_targets.txt
 -rw-r--r--  recon.txt`,
       type: "normal",
+      clearAfter: true,
     },
     {
       command: "cat focus_areas.txt",
       output: `[+] Web App Pentesting
 [+] Network Security
 [+] Vulnerability Assessment`,
+      type: "success",
+    },
+    {
+      command: "cat supported_targets.txt",
+      output: `[+] SaaS Platforms
+[+] E-commerce Applications
+[+] Business Websites`,
       type: "success",
     },
     {
@@ -254,39 +261,42 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   async function runTerminal() {
-    terminal.innerHTML = "";
+    while (true) {
+      terminal.replaceChildren();
 
-    for (let i = 0; i < commands.length; i++) {
-      const current = commands[i];
+      for (const current of commands) {
+        const commandLine = createCommandLine();
+        terminal.appendChild(commandLine.line);
 
-      const commandLine = createCommandLine();
-      terminal.appendChild(commandLine.line);
+        const currentCursor = document.createElement("span");
+        currentCursor.className = "typing-cursor";
+        currentCursor.textContent = "▋";
+        commandLine.line.appendChild(currentCursor);
 
-      const currentCursor = document.createElement("span");
-      currentCursor.className = "typing-cursor";
-      currentCursor.textContent = "▋";
-      commandLine.line.appendChild(currentCursor);
+        await typeIntoElement(commandLine.command, current.command);
 
-      await typeIntoElement(commandLine.command, current.command);
+        currentCursor.remove();
 
-      currentCursor.remove();
+        await delay(250);
 
-      await delay(250);
+        const output = createOutput(current.output, current.type);
+        terminal.appendChild(output);
 
-      const output = createOutput(current.output, current.type);
-      terminal.appendChild(output);
+        await delay(500 + Math.random() * 500);
 
-      await delay(500 + Math.random() * 500);
-    }
+        if (current.clearAfter) {
+          terminal.replaceChildren();
+        }
+      }
 
-    const separator = document.createElement("div");
-    separator.className = "terminal-separator";
-    terminal.appendChild(separator);
+      const separator = document.createElement("div");
+      separator.className = "terminal-separator";
+      terminal.appendChild(separator);
 
-    const status = document.createElement("div");
-    status.className = "terminal-status terminal-ready";
+      const status = document.createElement("div");
+      status.className = "terminal-status terminal-ready";
 
-    status.innerHTML = `
+      status.innerHTML = `
       <span class="terminal-status-label">
         CURRENT_STATUS
       </span>
@@ -295,19 +305,22 @@ document.addEventListener("DOMContentLoaded", () => {
       </span>
     `;
 
-    terminal.appendChild(status);
+      terminal.appendChild(status);
 
-    await delay(600);
+      await delay(600);
 
-    const finalLine = createCommandLine();
-    finalLine.line.classList.add("terminal-ready");
+      const finalLine = createCommandLine();
+      finalLine.line.classList.add("terminal-ready");
 
-    const finalCursor = document.createElement("span");
-    finalCursor.className = "typing-cursor";
-    finalCursor.textContent = "▋";
+      const finalCursor = document.createElement("span");
+      finalCursor.className = "typing-cursor";
+      finalCursor.textContent = "▋";
 
-    finalLine.line.appendChild(finalCursor);
-    terminal.appendChild(finalLine.line);
+      finalLine.line.appendChild(finalCursor);
+      terminal.appendChild(finalLine.line);
+
+      await delay(15000);
+    }
   }
 
   async function typeIntoElement(element, text) {
