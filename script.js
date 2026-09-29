@@ -285,6 +285,7 @@ document.addEventListener("DOMContentLoaded", () => {
         await delay(500 + Math.random() * 500);
 
         if (current.clearAfter) {
+          await delay(3000 + Math.random() * 2000);
           terminal.replaceChildren();
         }
       }
