@@ -33,25 +33,14 @@ The portfolio content references security tools and technologies including **Bur
 mohamed-pentesting-portfolio/
 ├── index.html
 ├── contact.html
-├── cv.html
 ├── thank-you.html
+├── cv.html
 ├── style.css
 ├── script.js
 ├── README.md
 └── assets/
     ├── certificates/
-    │   ├── MOHAMED_HUSSAIN_CV.pdf
-    │   ├── CyberSecurity_For_Beginners.pdf
-    │   ├── CyberSecurity_For_Beginners.jpg
-    │   ├── Ethical_Hacking.pdf
-    │   ├── Ethical_Hacking.jpg
-    │   ├── Red_Hat_System_Administration.pdf
-    │   └── Red_Hat_System_Administration.jpg
     └── images/
-        ├── Portfolio.png
-        ├── codespaces-svgrepo-com.svg
-        ├── khamsat.svg
-        └── nafezly.jpeg
 ```
 
 ## Run locally
