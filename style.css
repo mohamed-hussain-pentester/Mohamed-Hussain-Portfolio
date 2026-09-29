@@ -370,6 +370,10 @@ h1 {
   margin-bottom: 20px;
 }
 
+.hero-name-cursor {
+  animation: cursorBlink 0.8s steps(1) infinite;
+}
+
 h2 {
   font-size: clamp(2rem, 4vw, 3rem);
   line-height: 1;

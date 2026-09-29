@@ -30,6 +30,35 @@ if (pageLoader) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  const nameText = document.getElementById("hero-name-text");
+
+  if (nameText) {
+    const name = "Mohamed Hussain";
+    const delay = (ms) =>
+      new Promise((resolve) => window.setTimeout(resolve, ms));
+
+    async function animateName() {
+      while (true) {
+        nameText.textContent = "";
+        for (const character of name) {
+          nameText.textContent += character;
+          await delay(120);
+        }
+
+        await delay(10000);
+
+        for (let length = name.length - 1; length >= 0; length--) {
+          nameText.textContent = name.slice(0, length);
+          await delay(65);
+        }
+      }
+    }
+
+    animateName();
+  }
+});
+
+document.addEventListener("DOMContentLoaded", () => {
   const toast = document.getElementById("toast");
   const menu = document.getElementById("mobile-menu");
   const btn = document.getElementById("menu-button");
