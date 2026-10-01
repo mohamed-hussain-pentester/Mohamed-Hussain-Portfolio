@@ -62,8 +62,64 @@ document.addEventListener("DOMContentLoaded", () => {
   const toast = document.getElementById("toast");
   const menu = document.getElementById("mobile-menu");
   const btn = document.getElementById("menu-button");
+  const navLinks = Array.from(
+    document.querySelectorAll(
+      ".nav-links a[href^='#'], .mobile-menu a[href^='#']",
+    ),
+  );
+  const sections = Array.from(
+    new Set(
+      navLinks
+        .map((link) => document.getElementById(link.hash.slice(1)))
+        .filter(Boolean),
+    ),
+  );
   const emailText = "mohamed.hussain.pentester@gmail.com";
   let toastTimeout;
+
+  if (sections.length) {
+    let navigationFrame = 0;
+
+    const updateActiveNavigation = () => {
+      const headerBottom =
+        document.querySelector(".site-header")?.getBoundingClientRect().bottom ??
+        0;
+      const activationLine = headerBottom + 24;
+      let activeSection = sections[0];
+
+      for (const section of sections) {
+        if (section.getBoundingClientRect().top > activationLine) break;
+        activeSection = section;
+      }
+
+      navLinks.forEach((link) => {
+        const isActive = link.hash === `#${activeSection.id}`;
+        link.classList.toggle("active", isActive);
+        if (isActive) {
+          link.setAttribute("aria-current", "location");
+        } else {
+          link.removeAttribute("aria-current");
+        }
+      });
+    };
+
+    const scheduleNavigationUpdate = () => {
+      if (navigationFrame) return;
+      navigationFrame = window.requestAnimationFrame(() => {
+        navigationFrame = 0;
+        updateActiveNavigation();
+      });
+    };
+
+    updateActiveNavigation();
+    window.addEventListener("scroll", scheduleNavigationUpdate, {
+      passive: true,
+    });
+    window.addEventListener("resize", scheduleNavigationUpdate, {
+      passive: true,
+    });
+    window.addEventListener("hashchange", scheduleNavigationUpdate);
+  }
 
   const showToast = (message) => {
     if (!toast) return;
