@@ -421,6 +421,249 @@ if (mouseGlow) {
   animateMouseGlow();
 }
 
+/* =========================================
+    Interactive Grid Effect
+========================================= */
+const gridMotion = window.matchMedia("(hover: hover) and (pointer: fine)");
+const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+if (gridMotion.matches && !reducedMotion.matches) {
+  const gridCanvas = document.createElement("canvas");
+  const gridContext = gridCanvas.getContext("2d");
+
+  if (gridContext) {
+    const gridSize = 42;
+    const interactionRadius = 168;
+    const lineColor = "rgba(109, 172, 194, 0.045)";
+    const cursor = { x: 0, y: 0, currentX: 0, currentY: 0 };
+    let interaction = 0;
+    let targetInteraction = 0;
+    let animationFrame = 0;
+    let pointerEntered = false;
+
+    gridCanvas.className = "interactive-grid";
+    gridCanvas.setAttribute("aria-hidden", "true");
+    document.body.appendChild(gridCanvas);
+
+    const resizeGrid = () => {
+      const pixelRatio = Math.min(window.devicePixelRatio || 1, 1.5);
+      gridCanvas.width = Math.round(window.innerWidth * pixelRatio);
+      gridCanvas.height = Math.round(window.innerHeight * pixelRatio);
+      gridCanvas.style.width = `${window.innerWidth}px`;
+      gridCanvas.style.height = `${window.innerHeight}px`;
+      gridContext.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+      if (interaction > 0) scheduleGridFrame();
+    };
+
+    const smoothFalloff = (distance) => {
+      const progress = Math.min(distance / interactionRadius, 1);
+      const eased = progress * progress * (3 - 2 * progress);
+      return 1 - eased;
+    };
+
+    const drawGrid = () => {
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+      const radiusSquared = interactionRadius * interactionRadius;
+      const distortion = 0.42 * interaction;
+      const drawRadius = interactionRadius * 1.15;
+      const left = Math.max(0, cursor.currentX - drawRadius);
+      const right = Math.min(width, cursor.currentX + drawRadius);
+      const top = Math.max(0, cursor.currentY - drawRadius);
+      const bottom = Math.min(height, cursor.currentY + drawRadius);
+
+      gridContext.clearRect(0, 0, width, height);
+      gridContext.save();
+      gridContext.beginPath();
+      gridContext.arc(
+        cursor.currentX,
+        cursor.currentY,
+        drawRadius,
+        0,
+        Math.PI * 2,
+      );
+      gridContext.clip();
+
+      const backgroundFade = gridContext.createRadialGradient(
+        cursor.currentX,
+        cursor.currentY,
+        0,
+        cursor.currentX,
+        cursor.currentY,
+        drawRadius,
+      );
+      backgroundFade.addColorStop(0, `rgba(8, 13, 16, ${0.92 * interaction})`);
+      backgroundFade.addColorStop(0.78, `rgba(8, 13, 16, ${0.72 * interaction})`);
+      backgroundFade.addColorStop(1, "rgba(8, 13, 16, 0)");
+      gridContext.fillStyle = backgroundFade;
+      gridContext.fillRect(left, top, right - left, bottom - top);
+
+      gridContext.lineWidth = 1;
+      gridContext.strokeStyle = lineColor;
+      gridContext.globalAlpha = interaction;
+      gridContext.shadowBlur = 0;
+      gridContext.beginPath();
+
+      const mapPoint = (x, y) => {
+        const dx = x - cursor.currentX;
+        const dy = y - cursor.currentY;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        const influence = distance < interactionRadius
+          ? smoothFalloff(distance) * distortion
+          : 0;
+
+        return {
+          x: x - dx * influence,
+          y: y - dy * influence,
+          distance,
+        };
+      };
+
+      const drawLine = (isVertical, position) => {
+        const start = isVertical ? top : left;
+        const end = isVertical ? bottom : right;
+        let previous = null;
+
+        for (let along = start; along <= end; along += 10) {
+          const point = isVertical
+            ? mapPoint(position, along)
+            : mapPoint(along, position);
+          const x = point.x;
+          const y = point.y;
+
+          if (previous) {
+            gridContext.moveTo(previous.x, previous.y);
+            gridContext.lineTo(x, y);
+          }
+          previous = { x, y };
+        }
+
+        if (previous) {
+          const point = isVertical
+            ? mapPoint(position, end)
+            : mapPoint(end, position);
+          gridContext.lineTo(point.x, point.y);
+        }
+      };
+
+      const firstX = Math.floor(left / gridSize) * gridSize;
+      for (let x = firstX; x <= right; x += gridSize) {
+        drawLine(true, x);
+      }
+      const firstY = Math.floor((top + 8) / gridSize) * gridSize - 8;
+      for (let y = firstY; y <= bottom; y += gridSize) {
+        drawLine(false, y);
+      }
+      gridContext.stroke();
+
+      if (interaction > 0.01) {
+        gridContext.beginPath();
+        gridContext.strokeStyle = "rgba(0, 191, 255, 0.12)";
+        gridContext.shadowColor = "rgba(0, 191, 255, 0.16)";
+        gridContext.shadowBlur = 5;
+
+        const drawGlow = (isVertical, position) => {
+          const start = isVertical ? top : left;
+          const end = isVertical ? bottom : right;
+          let previous = null;
+
+          for (let along = start; along <= end; along += 10) {
+            const point = isVertical
+              ? mapPoint(position, along)
+              : mapPoint(along, position);
+            const mapped = { x: point.x, y: point.y };
+
+            if (previous) {
+              const midpointX = (previous.x + mapped.x) / 2;
+              const midpointY = (previous.y + mapped.y) / 2;
+              const dx = midpointX - cursor.currentX;
+              const dy = midpointY - cursor.currentY;
+
+              if (dx * dx + dy * dy < radiusSquared) {
+                gridContext.moveTo(previous.x, previous.y);
+                gridContext.lineTo(mapped.x, mapped.y);
+              }
+            }
+            previous = mapped;
+          }
+
+          const point = isVertical
+            ? mapPoint(position, end)
+            : mapPoint(end, position);
+          const dx = point.x - cursor.currentX;
+          const dy = point.y - cursor.currentY;
+          if (previous && dx * dx + dy * dy < radiusSquared) {
+            gridContext.moveTo(previous.x, previous.y);
+            gridContext.lineTo(point.x, point.y);
+          }
+        };
+
+        for (let x = firstX; x <= right; x += gridSize) {
+          drawGlow(true, x);
+        }
+        for (let y = firstY; y <= bottom; y += gridSize) {
+          drawGlow(false, y);
+        }
+        gridContext.stroke();
+        gridContext.shadowBlur = 0;
+      }
+      gridContext.restore();
+    };
+
+    const animateGrid = () => {
+      animationFrame = 0;
+      cursor.currentX += (cursor.x - cursor.currentX) * 0.18;
+      cursor.currentY += (cursor.y - cursor.currentY) * 0.18;
+      interaction += (targetInteraction - interaction) * 0.16;
+
+      if (interaction > 0.001 || targetInteraction > 0) {
+        drawGrid();
+      } else {
+        gridContext.clearRect(0, 0, window.innerWidth, window.innerHeight);
+      }
+
+      const isSettled =
+        Math.abs(cursor.x - cursor.currentX) < 0.1 &&
+        Math.abs(cursor.y - cursor.currentY) < 0.1 &&
+        Math.abs(targetInteraction - interaction) < 0.001;
+
+      if (!isSettled) scheduleGridFrame();
+    };
+
+    function scheduleGridFrame() {
+      if (!animationFrame) {
+        animationFrame = window.requestAnimationFrame(animateGrid);
+      }
+    }
+
+    document.addEventListener("pointermove", (event) => {
+      if (event.pointerType !== "mouse") return;
+
+      if (!pointerEntered) {
+        cursor.currentX = event.clientX;
+        cursor.currentY = event.clientY;
+        pointerEntered = true;
+      }
+
+      cursor.x = event.clientX;
+      cursor.y = event.clientY;
+      targetInteraction = 1;
+      scheduleGridFrame();
+    });
+
+    const leaveGrid = () => {
+      pointerEntered = false;
+      targetInteraction = 0;
+      scheduleGridFrame();
+    };
+
+    document.addEventListener("pointerleave", leaveGrid);
+    window.addEventListener("blur", leaveGrid);
+    window.addEventListener("resize", resizeGrid);
+    resizeGrid();
+  }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   const modal = document.getElementById("certificateModal");
   const modalImage = document.getElementById("certificateModalImage");
