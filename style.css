@@ -170,7 +170,9 @@ a {
 .nav-links a {
   position: relative;
   text-decoration: none;
-  transition: color 0.2s ease, text-shadow 0.2s ease;
+  transition:
+    color 0.2s ease,
+    text-shadow 0.2s ease;
 }
 
 .nav-links a:hover,
@@ -213,6 +215,9 @@ a {
 ================================= */
 
 .btn {
+  --button-rest-background: var(--bg);
+  --button-rest-color: var(--ink);
+
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -226,6 +231,7 @@ a {
   transition:
     background 0.2s ease,
     border-color 0.2s ease,
+    color 0.2s ease,
     transform 0.2s ease,
     box-shadow 0.2s ease;
 }
@@ -236,6 +242,9 @@ a {
 }
 
 .btn-primary {
+  --button-rest-background: var(--cyan);
+  --button-rest-color: #061116;
+
   background: var(--cyan);
   color: #061116;
   border-color: var(--cyan);
@@ -249,12 +258,18 @@ a {
 }
 
 .btn-secondary {
+  --button-rest-background: #102630;
+  --button-rest-color: var(--ink);
+
   background: #102630;
   color: var(--ink);
   border-color: #173641;
 }
 
 .btn-outline {
+  --button-rest-background: var(--bg);
+  --button-rest-color: var(--ink);
+
   background: transparent;
   color: var(--ink);
   border-color: #d1d7da;
@@ -264,6 +279,12 @@ a {
 .btn-secondary:hover {
   border-color: rgba(72, 199, 242, 0.6);
   box-shadow: inset 0 0 0 1px rgba(0, 191, 255, 0.12);
+}
+
+.btn:hover {
+  background: var(--button-rest-color);
+  color: var(--button-rest-background);
+  border-color: var(--button-rest-color);
 }
 
 .btn:focus-visible,
@@ -441,6 +462,33 @@ h1 {
 
 .hero-name-cursor {
   animation: cursorBlink 0.8s steps(1) infinite;
+}
+
+.hero-name-letter {
+  display: inline-block;
+  white-space: pre;
+  cursor: default;
+}
+
+.hero-name-word {
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.hero-name-letter:hover {
+  animation: heroNameLetterPop 0.45s ease;
+}
+
+@keyframes heroNameLetterPop {
+  35% {
+    color: var(--cyan);
+    transform: translateY(-0.18em) rotate(-8deg) scale(1.2);
+    text-shadow: 0 0 18px rgba(0, 191, 255, 0.7);
+  }
+
+  70% {
+    transform: translateY(0.04em) rotate(4deg) scale(0.96);
+  }
 }
 
 h2 {
@@ -1682,6 +1730,26 @@ footer {
   mix-blend-mode: screen;
 }
 
+.mouse-glow-dot {
+  width: 10px;
+  height: 10px;
+  background: #fff;
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.8);
+  transition:
+    width 0.2s ease,
+    height 0.2s ease,
+    background-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.mouse-glow-dot.is-button-hover {
+  width: 14px;
+  height: 14px;
+  color: var(--hover-button-text-color, var(--cyan));
+  background: currentColor;
+  box-shadow: 0 0 18px currentColor;
+}
+
 /* ================================
    Certificate Modal
 ================================ */
@@ -2218,8 +2286,10 @@ html.page-loading body {
   .nav-links a,
   .nav-links a::after,
   .mobile-menu a,
-  .btn {
+  .btn,
+  .hero-name-letter:hover {
     transition: none;
+    animation: none;
   }
 
   .page-loader,

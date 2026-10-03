@@ -40,15 +40,43 @@ document.addEventListener("DOMContentLoaded", () => {
     async function animateName() {
       while (true) {
         nameText.textContent = "";
+        let currentWord = null;
+
         for (const character of name) {
-          nameText.textContent += character;
-          await delay(120);
+          if (character === " ") {
+            nameText.append(document.createTextNode(" "));
+            currentWord = null;
+            await delay(280 + Math.random() * 180);
+            continue;
+          }
+
+          if (!currentWord) {
+            currentWord = document.createElement("span");
+            currentWord.className = "hero-name-word";
+            nameText.append(currentWord);
+          }
+
+          const letter = document.createElement("span");
+          letter.className = "hero-name-letter";
+          letter.textContent = character;
+          currentWord.append(letter);
+          const typingDelay = 100 + Math.random() * 120;
+          const pause = Math.random() < 0.08 ? 180 + Math.random() * 220 : 0;
+          await delay(typingDelay + pause);
         }
 
         await delay(10000);
 
         for (let length = name.length - 1; length >= 0; length--) {
-          nameText.textContent = name.slice(0, length);
+          const lastWord = nameText.lastElementChild;
+          if (lastWord?.lastElementChild) {
+            lastWord.lastElementChild.remove();
+            if (!lastWord.hasChildNodes()) {
+              lastWord.remove();
+            }
+          } else {
+            nameText.lastChild?.remove();
+          }
           await delay(65);
         }
       }
@@ -396,17 +424,52 @@ document.addEventListener("DOMContentLoaded", () => {
     Mouse Glow Effect
 ========================================= */
 const mouseGlow = document.querySelector(".mouse-glow");
+const mouseGlowDot = document.querySelector(".mouse-glow-dot");
 
 if (mouseGlow) {
   let mouseX = 0;
   let mouseY = 0;
   let currentX = 0;
   let currentY = 0;
+  let currentDotX = 0;
+  let currentDotY = 0;
 
   document.addEventListener("mousemove", (e) => {
     mouseX = e.clientX;
     mouseY = e.clientY;
   });
+
+  if (mouseGlowDot) {
+    document.addEventListener("pointerover", (event) => {
+      if (event.target instanceof Element) {
+        const button = event.target.closest(".btn");
+        mouseGlowDot.classList.toggle("is-button-hover", Boolean(button));
+
+        if (button) {
+          const buttonColors = window.getComputedStyle(button);
+          const hoverTextColor = buttonColors
+            .getPropertyValue("--button-rest-background")
+            .trim();
+          mouseGlowDot.style.setProperty(
+            "--hover-button-text-color",
+            hoverTextColor,
+          );
+        }
+      }
+    });
+
+    document.addEventListener("pointerout", (event) => {
+      if (
+        event.target instanceof Element &&
+        event.target.closest(".btn") &&
+        (!(event.relatedTarget instanceof Element) ||
+          !event.relatedTarget.closest(".btn"))
+      ) {
+        mouseGlowDot.classList.remove("is-button-hover");
+        mouseGlowDot.style.removeProperty("--hover-button-text-color");
+      }
+    });
+  }
 
   function animateMouseGlow() {
     currentX += (mouseX - currentX) * 0.15;
@@ -414,6 +477,13 @@ if (mouseGlow) {
 
     mouseGlow.style.left = `${currentX}px`;
     mouseGlow.style.top = `${currentY}px`;
+
+    if (mouseGlowDot) {
+      currentDotX += (mouseX - currentDotX) * 0.35;
+      currentDotY += (mouseY - currentDotY) * 0.35;
+      mouseGlowDot.style.left = `${currentDotX}px`;
+      mouseGlowDot.style.top = `${currentDotY}px`;
+    }
 
     requestAnimationFrame(animateMouseGlow);
   }
