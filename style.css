@@ -217,6 +217,7 @@ a {
 .btn {
   --button-rest-background: var(--bg);
   --button-rest-color: var(--ink);
+  --button-hover-text-color: var(--button-rest-background);
 
   display: inline-flex;
   align-items: center;
@@ -1453,9 +1454,6 @@ footer {
   .menu-button {
     display: block;
   }
-  .nav-cta {
-    display: none;
-  }
   .hero-grid,
   .two-column {
     grid-template-columns: 1fr;
@@ -1580,6 +1578,10 @@ footer {
   body::after {
     display: none;
   }
+  .floating-contact,
+  .mouse-glow {
+    display: none !important;
+  }
   .wrap {
     max-width: none;
   }
@@ -1687,6 +1689,129 @@ footer {
     height: 42px;
   }
 }
+
+.floating-contact {
+  position: fixed;
+  z-index: 1001;
+  left: 25px;
+  bottom: 25px;
+}
+
+.floating-contact-button {
+  --button-rest-background: var(--cyan);
+  --button-rest-color: #061116;
+  --button-hover-text-color: var(--cyan);
+
+  position: relative;
+  display: flex;
+  width: 52px;
+  height: 52px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(0, 191, 255, 0.55);
+  border-radius: 50%;
+  background: var(--button-rest-background);
+  color: var(--button-rest-color);
+  box-shadow:
+    0 0 12px rgba(0, 191, 255, 0.2),
+    inset 0 0 10px rgba(0, 191, 255, 0.06);
+  font-size: 20px;
+  text-decoration: none;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.floating-contact-button:hover,
+.floating-contact-button:focus-visible {
+  --button-rest-background: #061116;
+  --button-rest-color: var(--cyan);
+
+  transform: translateY(-3px);
+  border-color: var(--button-rest-color);
+  background: var(--button-rest-background);
+  color: var(--button-rest-color);
+  box-shadow:
+    0 0 20px color-mix(in srgb, var(--button-rest-color) 34%, transparent),
+    inset 0 0 12px color-mix(in srgb, var(--button-rest-color) 10%, transparent);
+}
+
+.floating-contact-button:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 4px;
+}
+
+.floating-contact-tooltip {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  padding: 5px 9px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: #111827;
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.2;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, 4px);
+  transition:
+    opacity 0.18s ease,
+    transform 0.18s ease;
+}
+
+.floating-contact-button:hover .floating-contact-tooltip,
+.floating-contact-button:focus-visible .floating-contact-tooltip {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.floating-contact-hook {
+  position: absolute;
+  left: calc(100% + 10px);
+  bottom: 6px;
+  width: max-content;
+  max-width: min(230px, calc(100vw - 110px));
+  padding: 8px 11px;
+  border: 1px solid rgba(0, 191, 255, 0.28);
+  border-radius: 8px;
+  background: rgba(8, 13, 16, 0.96);
+  color: var(--ink);
+  font-size: 13px;
+  line-height: 1.35;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(-6px);
+  transition:
+    opacity 0.25s ease,
+    transform 0.25s ease;
+}
+
+.floating-contact-hook.is-visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+@media (max-width: 650px) {
+  .floating-contact {
+    left: 15px;
+    bottom: 15px;
+  }
+
+  .floating-contact-button {
+    width: 48px;
+    height: 48px;
+  }
+
+  .floating-contact-hook {
+    max-width: min(205px, calc(100vw - 90px));
+    font-size: 12px;
+  }
+}
+
 /*===============*
   Contact btns
 *===============*/
@@ -1725,12 +1850,18 @@ footer {
   pointer-events: none;
   position: fixed;
   z-index: 9999;
+  top: 0;
+  left: 0;
 
   transform: translate(-50%, -50%);
   mix-blend-mode: screen;
+  opacity: 0;
+  transition: opacity 0.15s ease;
 }
 
 .mouse-glow-dot {
+  width: 10px;
+  height: 10px;
   width: 10px;
   height: 10px;
   background: #fff;
@@ -1745,9 +1876,26 @@ footer {
 .mouse-glow-dot.is-button-hover {
   width: 14px;
   height: 14px;
+  opacity: 1;
+  outline: 1px solid rgba(255, 255, 255, 0.9);
+  outline-offset: 1px;
   color: var(--hover-button-text-color, var(--cyan));
   background: currentColor;
-  box-shadow: 0 0 18px currentColor;
+  box-shadow:
+    0 0 18px currentColor,
+    0 0 6px rgba(255, 255, 255, 0.9);
+}
+
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .mouse-glow {
+    will-change: transform;
+  }
+}
+
+@media (hover: none), (pointer: coarse), (prefers-reduced-motion: reduce) {
+  .mouse-glow {
+    display: none;
+  }
 }
 
 /* ================================
@@ -2274,6 +2422,14 @@ html.page-loading body {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    scroll-behavior: auto !important;
+    transition: none !important;
+  }
+
   html {
     scroll-behavior: auto;
   }

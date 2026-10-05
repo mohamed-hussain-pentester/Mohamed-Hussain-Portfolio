@@ -1,4 +1,6 @@
 const pageLoader = document.querySelector(".page-loader");
+const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+const mouseMotion = window.matchMedia("(hover: hover) and (pointer: fine)");
 
 if (pageLoader) {
   let dismissed = false;
@@ -34,6 +36,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (nameText) {
     const name = "Mohamed Hussain";
+    if (reducedMotion.matches) {
+      nameText.textContent = name;
+      return;
+    }
+
     const delay = (ms) =>
       new Promise((resolve) => window.setTimeout(resolve, ms));
 
@@ -233,15 +240,15 @@ document.addEventListener("DOMContentLoaded", () => {
    BACK TO TOP
 ========================================= */
 const backToTop = document.getElementById("backToTop");
+let backToTopFrame = 0;
 
 window.addEventListener("scroll", () => {
-  if (!backToTop) return;
-  if (window.scrollY > 400) {
-    backToTop.classList.add("show");
-  } else {
-    backToTop.classList.remove("show");
-  }
-});
+  if (!backToTop || backToTopFrame) return;
+  backToTopFrame = window.requestAnimationFrame(() => {
+    backToTopFrame = 0;
+    backToTop.classList.toggle("show", window.scrollY > 400);
+  });
+}, { passive: true });
 
 backToTop?.addEventListener("click", () => {
   window.scrollTo({
@@ -249,6 +256,27 @@ backToTop?.addEventListener("click", () => {
     behavior: "smooth",
   });
 });
+
+const contactHook = document.querySelector(".floating-contact-hook");
+
+if (contactHook) {
+  const hooks = [
+    "Need a security check?",
+    "Let's test your app",
+    "Found something suspicious?",
+  ];
+  let hookIndex = 0;
+
+  const showContactHook = () => {
+    contactHook.textContent = hooks[hookIndex];
+    hookIndex = (hookIndex + 1) % hooks.length;
+    contactHook.classList.add("is-visible");
+    window.setTimeout(() => contactHook.classList.remove("is-visible"), 3800);
+  };
+
+  window.setTimeout(showContactHook, 1000);
+  window.setInterval(showContactHook, 10000);
+}
 
 /* =========================================
    REALISTIC TERMINAL ANIMATION
@@ -417,6 +445,27 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  if (reducedMotion.matches) {
+    for (const current of commands) {
+      const commandLine = createCommandLine();
+      commandLine.command.textContent = current.command;
+      terminal.append(commandLine.line, createOutput(current.output, current.type));
+    }
+
+    const separator = document.createElement("div");
+    separator.className = "terminal-separator";
+    terminal.appendChild(separator);
+
+    const status = document.createElement("div");
+    status.className = "terminal-status terminal-ready";
+    status.innerHTML = `
+      <span class="terminal-status-label">CURRENT_STATUS</span>
+      <span class="terminal-status-value">Available for Opportunities</span>
+    `;
+    terminal.appendChild(status);
+    return;
+  }
+
   runTerminal();
 });
 
@@ -426,29 +475,51 @@ document.addEventListener("DOMContentLoaded", () => {
 const mouseGlow = document.querySelector(".mouse-glow");
 const mouseGlowDot = document.querySelector(".mouse-glow-dot");
 
-if (mouseGlow) {
+if (mouseGlow && mouseMotion.matches && !reducedMotion.matches) {
   let mouseX = 0;
   let mouseY = 0;
   let currentX = 0;
   let currentY = 0;
   let currentDotX = 0;
   let currentDotY = 0;
+  let animationFrame = 0;
+  let pointerActive = false;
+  let activeButton = null;
 
-  document.addEventListener("mousemove", (e) => {
-    mouseX = e.clientX;
-    mouseY = e.clientY;
-  });
+  const scheduleMouseGlow = () => {
+    if (animationFrame || document.hidden || !pointerActive) return;
+    animationFrame = window.requestAnimationFrame(animateMouseGlow);
+  };
+
+  document.addEventListener("pointermove", (event) => {
+    if (event.pointerType !== "mouse") return;
+
+    mouseX = event.clientX;
+    mouseY = event.clientY;
+    if (!pointerActive) {
+      currentX = mouseX;
+      currentY = mouseY;
+      currentDotX = mouseX;
+      currentDotY = mouseY;
+      pointerActive = true;
+      mouseGlow.style.opacity = "1";
+      if (mouseGlowDot) mouseGlowDot.style.opacity = "1";
+    }
+    scheduleMouseGlow();
+  }, { passive: true });
 
   if (mouseGlowDot) {
     document.addEventListener("pointerover", (event) => {
       if (event.target instanceof Element) {
-        const button = event.target.closest(".btn");
+        const button = event.target.closest(".btn, .floating-contact-button");
+        if (button === activeButton) return;
+        activeButton = button;
         mouseGlowDot.classList.toggle("is-button-hover", Boolean(button));
 
         if (button) {
-          const buttonColors = window.getComputedStyle(button);
-          const hoverTextColor = buttonColors
-            .getPropertyValue("--button-rest-background")
+          const hoverTextColor = window
+            .getComputedStyle(button)
+            .getPropertyValue("--button-hover-text-color")
             .trim();
           mouseGlowDot.style.setProperty(
             "--hover-button-text-color",
@@ -456,48 +527,84 @@ if (mouseGlow) {
           );
         }
       }
-    });
+    }, { passive: true });
 
     document.addEventListener("pointerout", (event) => {
       if (
         event.target instanceof Element &&
-        event.target.closest(".btn") &&
+        event.target.closest(".btn, .floating-contact-button") &&
         (!(event.relatedTarget instanceof Element) ||
-          !event.relatedTarget.closest(".btn"))
+          !event.relatedTarget.closest(".btn, .floating-contact-button"))
       ) {
+        activeButton = null;
         mouseGlowDot.classList.remove("is-button-hover");
         mouseGlowDot.style.removeProperty("--hover-button-text-color");
       }
-    });
+    }, { passive: true });
   }
 
   function animateMouseGlow() {
+    animationFrame = 0;
+    if (document.hidden || !pointerActive) return;
+
     currentX += (mouseX - currentX) * 0.15;
     currentY += (mouseY - currentY) * 0.15;
 
-    mouseGlow.style.left = `${currentX}px`;
-    mouseGlow.style.top = `${currentY}px`;
+    mouseGlow.style.transform =
+      `translate3d(${currentX}px, ${currentY}px, 0) translate(-50%, -50%)`;
 
     if (mouseGlowDot) {
       currentDotX += (mouseX - currentDotX) * 0.35;
       currentDotY += (mouseY - currentDotY) * 0.35;
-      mouseGlowDot.style.left = `${currentDotX}px`;
-      mouseGlowDot.style.top = `${currentDotY}px`;
+      mouseGlowDot.style.transform =
+        `translate3d(${currentDotX}px, ${currentDotY}px, 0) translate(-50%, -50%)`;
     }
 
-    requestAnimationFrame(animateMouseGlow);
+    if (
+      Math.abs(mouseX - currentX) > 0.1 ||
+      Math.abs(mouseY - currentY) > 0.1 ||
+      (mouseGlowDot &&
+        (Math.abs(mouseX - currentDotX) > 0.1 ||
+          Math.abs(mouseY - currentDotY) > 0.1))
+    ) {
+      scheduleMouseGlow();
+    }
   }
 
-  animateMouseGlow();
+  const hideMouseGlow = () => {
+    pointerActive = false;
+    activeButton = null;
+    mouseGlow.style.opacity = "0";
+    if (mouseGlowDot) {
+      mouseGlowDot.style.opacity = "0";
+      mouseGlowDot.classList.remove("is-button-hover");
+      mouseGlowDot.style.removeProperty("--hover-button-text-color");
+    }
+    if (animationFrame) {
+      window.cancelAnimationFrame(animationFrame);
+      animationFrame = 0;
+    }
+  };
+
+  document.addEventListener("pointerout", (event) => {
+    if (event.pointerType === "mouse" && !event.relatedTarget) hideMouseGlow();
+  }, { passive: true });
+  window.addEventListener("blur", hideMouseGlow);
+
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden && animationFrame) {
+      window.cancelAnimationFrame(animationFrame);
+      animationFrame = 0;
+    } else {
+      scheduleMouseGlow();
+    }
+  });
 }
 
 /* =========================================
     Interactive Grid Effect
 ========================================= */
-const gridMotion = window.matchMedia("(hover: hover) and (pointer: fine)");
-const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-
-if (gridMotion.matches && !reducedMotion.matches) {
+if (mouseMotion.matches && !reducedMotion.matches) {
   const gridCanvas = document.createElement("canvas");
   const gridContext = gridCanvas.getContext("2d");
 
@@ -509,20 +616,42 @@ if (gridMotion.matches && !reducedMotion.matches) {
     let interaction = 0;
     let targetInteraction = 0;
     let animationFrame = 0;
+    let resizeFrame = 0;
     let pointerEntered = false;
+    let viewportWidth = 0;
+    let viewportHeight = 0;
+    let previousDrawBounds = null;
 
     gridCanvas.className = "interactive-grid";
     gridCanvas.setAttribute("aria-hidden", "true");
     document.body.appendChild(gridCanvas);
 
     const resizeGrid = () => {
+      resizeFrame = 0;
+      const width = window.innerWidth;
+      const height = window.innerHeight;
       const pixelRatio = Math.min(window.devicePixelRatio || 1, 1.5);
-      gridCanvas.width = Math.round(window.innerWidth * pixelRatio);
-      gridCanvas.height = Math.round(window.innerHeight * pixelRatio);
-      gridCanvas.style.width = `${window.innerWidth}px`;
-      gridCanvas.style.height = `${window.innerHeight}px`;
+      if (
+        width === viewportWidth &&
+        height === viewportHeight &&
+        gridCanvas.width === Math.round(width * pixelRatio) &&
+        gridCanvas.height === Math.round(height * pixelRatio)
+      ) {
+        return;
+      }
+      viewportWidth = width;
+      viewportHeight = height;
+      gridCanvas.width = Math.round(width * pixelRatio);
+      gridCanvas.height = Math.round(height * pixelRatio);
       gridContext.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
-      if (interaction > 0) scheduleGridFrame();
+      previousDrawBounds = null;
+      if (pointerEntered) scheduleGridFrame();
+    };
+
+    const scheduleGridResize = () => {
+      if (!resizeFrame) {
+        resizeFrame = window.requestAnimationFrame(resizeGrid);
+      }
     };
 
     const smoothFalloff = (distance) => {
@@ -532,17 +661,28 @@ if (gridMotion.matches && !reducedMotion.matches) {
     };
 
     const drawGrid = () => {
-      const width = window.innerWidth;
-      const height = window.innerHeight;
       const radiusSquared = interactionRadius * interactionRadius;
       const distortion = 0.42 * interaction;
       const drawRadius = interactionRadius * 1.15;
       const left = Math.max(0, cursor.currentX - drawRadius);
-      const right = Math.min(width, cursor.currentX + drawRadius);
+      const right = Math.min(viewportWidth, cursor.currentX + drawRadius);
       const top = Math.max(0, cursor.currentY - drawRadius);
-      const bottom = Math.min(height, cursor.currentY + drawRadius);
+      const bottom = Math.min(viewportHeight, cursor.currentY + drawRadius);
 
-      gridContext.clearRect(0, 0, width, height);
+      if (previousDrawBounds) {
+        gridContext.clearRect(
+          previousDrawBounds.left,
+          previousDrawBounds.top,
+          previousDrawBounds.width,
+          previousDrawBounds.height,
+        );
+      }
+      previousDrawBounds = {
+        left,
+        top,
+        width: right - left,
+        height: bottom - top,
+      };
       gridContext.save();
       gridContext.beginPath();
       gridContext.arc(
@@ -577,15 +717,14 @@ if (gridMotion.matches && !reducedMotion.matches) {
       const mapPoint = (x, y) => {
         const dx = x - cursor.currentX;
         const dy = y - cursor.currentY;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-        const influence = distance < interactionRadius
-          ? smoothFalloff(distance) * distortion
+        const distanceSquared = dx * dx + dy * dy;
+        const influence = distanceSquared < radiusSquared
+          ? smoothFalloff(Math.sqrt(distanceSquared)) * distortion
           : 0;
 
         return {
           x: x - dx * influence,
           y: y - dy * influence,
-          distance,
         };
       };
 
@@ -688,8 +827,14 @@ if (gridMotion.matches && !reducedMotion.matches) {
 
       if (interaction > 0.001 || targetInteraction > 0) {
         drawGrid();
-      } else {
-        gridContext.clearRect(0, 0, window.innerWidth, window.innerHeight);
+      } else if (previousDrawBounds) {
+        gridContext.clearRect(
+          previousDrawBounds.left,
+          previousDrawBounds.top,
+          previousDrawBounds.width,
+          previousDrawBounds.height,
+        );
+        previousDrawBounds = null;
       }
 
       const isSettled =
@@ -701,7 +846,7 @@ if (gridMotion.matches && !reducedMotion.matches) {
     };
 
     function scheduleGridFrame() {
-      if (!animationFrame) {
+      if (!animationFrame && !document.hidden) {
         animationFrame = window.requestAnimationFrame(animateGrid);
       }
     }
@@ -719,7 +864,7 @@ if (gridMotion.matches && !reducedMotion.matches) {
       cursor.y = event.clientY;
       targetInteraction = 1;
       scheduleGridFrame();
-    });
+    }, { passive: true });
 
     const leaveGrid = () => {
       pointerEntered = false;
@@ -729,7 +874,17 @@ if (gridMotion.matches && !reducedMotion.matches) {
 
     document.addEventListener("pointerleave", leaveGrid);
     window.addEventListener("blur", leaveGrid);
-    window.addEventListener("resize", resizeGrid);
+    window.addEventListener("resize", scheduleGridResize, { passive: true });
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) {
+        if (animationFrame) window.cancelAnimationFrame(animationFrame);
+        animationFrame = 0;
+        interaction = 0;
+        targetInteraction = 0;
+        previousDrawBounds = null;
+        gridContext.clearRect(0, 0, viewportWidth, viewportHeight);
+      }
+    });
     resizeGrid();
   }
 }

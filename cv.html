@@ -3,6 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    />
     <link rel="stylesheet" href="style.css" />
     <link
       rel="icon"
@@ -34,8 +38,6 @@
 
         <!-- Actions -->
         <div class="nav-actions">
-          <a class="btn btn-primary" href="contact.html"> Let's Connect </a>
-
           <a
             href="index.html#home"
             class="btn btn-secondary"
@@ -251,6 +253,17 @@
       loadPDF();
     </script>
     <div class="mouse-glow"></div>
+    <div class="floating-contact">
+      <a
+        class="floating-contact-button"
+        href="index.html#contact"
+        aria-label="Contact"
+      >
+        <i class="fa-solid fa-message" aria-hidden="true"></i>
+        <span class="floating-contact-tooltip" aria-hidden="true">Contact</span>
+      </a>
+      <span class="floating-contact-hook" aria-hidden="true"></span>
+    </div>
     <script src="script.js"></script>
   </body>
 </html>
