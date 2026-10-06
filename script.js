@@ -31,6 +31,42 @@ if (pageLoader) {
   window.setTimeout(dismissPageLoader, 8000);
 }
 
+const scrollProgress = document.getElementById("scroll-progress");
+
+if (scrollProgress) {
+  const scrollProgressBar = scrollProgress.querySelector(
+    ".scroll-progress-bar",
+  );
+  let progressFrame = 0;
+
+  const updateScrollProgress = () => {
+    progressFrame = 0;
+    const scrollableHeight =
+      document.documentElement.scrollHeight - window.innerHeight;
+    const progress =
+      scrollableHeight > 0
+        ? Math.min(Math.max(window.scrollY / scrollableHeight, 0), 1)
+        : 0;
+    const percentage = Math.round(progress * 100);
+
+    scrollProgressBar.style.transform = `scaleX(${progress})`;
+    scrollProgress.setAttribute("aria-valuenow", String(percentage));
+  };
+
+  const scheduleScrollProgressUpdate = () => {
+    if (progressFrame) return;
+    progressFrame = window.requestAnimationFrame(updateScrollProgress);
+  };
+
+  updateScrollProgress();
+  window.addEventListener("scroll", scheduleScrollProgressUpdate, {
+    passive: true,
+  });
+  window.addEventListener("resize", scheduleScrollProgressUpdate, {
+    passive: true,
+  });
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   const nameText = document.getElementById("hero-name-text");
 
