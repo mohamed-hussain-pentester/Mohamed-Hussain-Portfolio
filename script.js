@@ -293,6 +293,108 @@ backToTop?.addEventListener("click", () => {
   });
 });
 
+document.addEventListener("DOMContentLoaded", async () => {
+  const section = document.getElementById("tryhackme-highlights");
+  if (!section) return;
+
+  const status = document.getElementById("thm-highlights-status");
+  const apiUrl =
+    "https://tryhackme.com/api/v2/public-profile?username=Mohamed.Sec";
+  const aliases = {
+    completedRooms: [
+      "completedRooms",
+      "roomsCompleted",
+      "completedRoomsNumber",
+      "roomsCompletedCount",
+    ],
+    currentStreak: ["currentStreak", "streak", "streakDays"],
+    maxStreak: [
+      "maxStreak",
+      "largestStreak",
+      "longestStreak",
+      "maxStreakDays",
+    ],
+    badges: ["badgesNumber", "badgeCount", "badgesCount", "badges"],
+    points: ["points", "totalPoints", "score"],
+    topPercentage: ["topPercentage", "percentile"],
+  };
+
+  const findValue = (payload, names) => {
+    const target = new Set(names.map((name) => name.toLowerCase()));
+    const pending = [payload];
+    while (pending.length) {
+      const current = pending.pop();
+      if (Array.isArray(current)) {
+        pending.push(...current);
+      } else if (current && typeof current === "object") {
+        for (const [key, value] of Object.entries(current)) {
+          if (target.has(key.toLowerCase()) && value != null) return value;
+        }
+        pending.push(...Object.values(current));
+      }
+    }
+    return null;
+  };
+
+  const asNumber = (value) => {
+    if (Array.isArray(value)) return value.length;
+    if (typeof value === "number" && Number.isFinite(value) && value >= 0) {
+      return value;
+    }
+    if (typeof value === "string") {
+      const match = value.replaceAll(",", "").match(/\d+(?:\.\d+)?/);
+      if (match) return Number(match[0]);
+    }
+    return null;
+  };
+
+  try {
+    const response = await fetch(apiUrl, {
+      headers: { Accept: "application/json" },
+      cache: "no-store",
+      signal: AbortSignal.timeout(10000),
+    });
+    if (!response.ok) throw new Error(`TryHackMe returned ${response.status}`);
+
+    const payload = await response.json();
+    let shown = 0;
+    for (const [key, names] of Object.entries(aliases)) {
+      const value = asNumber(findValue(payload, names));
+      if (key === "topPercentage" && value != null) {
+        document.getElementById("thm-top-percentage").textContent = `${value}%`;
+      } else if (value != null) {
+        const output =
+          key === "currentStreak" || key === "maxStreak"
+            ? `${new Intl.NumberFormat().format(value)} days`
+            : new Intl.NumberFormat().format(value);
+        const elementId =
+          key === "maxStreak"
+            ? "thm-max-streak"
+            : key === "completedRooms"
+              ? "thm-completed-rooms"
+              : key === "currentStreak"
+                ? "thm-current-streak"
+                : key === "badges"
+                  ? "thm-badges"
+                  : "thm-points";
+        document.getElementById(elementId).textContent = output;
+      }
+      if (value != null) {
+        section.querySelector(`[data-thm-stat="${key}"]`).hidden = false;
+        shown += 1;
+      }
+    }
+
+    status.textContent = shown
+      ? "Stats loaded from your public TryHackMe profile just now."
+      : "No public progress statistics are available on this profile.";
+  } catch (error) {
+    console.warn("Could not load live TryHackMe stats.", error);
+    status.textContent =
+      "Live stats are temporarily unavailable. You can still view the TryHackMe profile.";
+  }
+});
+
 const contactHook = document.querySelector(".floating-contact-hook");
 
 if (contactHook) {

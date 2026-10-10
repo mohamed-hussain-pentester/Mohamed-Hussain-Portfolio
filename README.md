@@ -12,6 +12,7 @@ The site is a responsive, static website built with HTML, CSS, and JavaScript an
 - **Penetration-testing methodology** — reconnaissance, scanning, enumeration, vulnerability assessment, authorized exploitation, privilege escalation, post-exploitation, and reporting.
 - **Security projects** — example work covering a web vulnerability scanner, network reconnaissance tool, OWASP web security lab, and vulnerability assessment dashboard. Project cards indicate whether work is in progress or planned.
 - **Labs and write-ups** — practice areas for TryHackMe, PortSwigger Web Security Academy, and Hack The Box, plus a write-up section for lab notes and reports.
+- **TryHackMe highlights** — the home page requests public profile statistics directly from TryHackMe when it loads. It displays available figures such as completed rooms, current/best streak, badges, points, and top percentage; unavailable fields stay hidden.
 - **Certificates and education** — certificate previews and downloads, Computer Science studies, and current learning goals.
 - **CV page** — an in-browser PDF viewer with zoom, print, and download controls.
 - **Contact page** — a contact form, email copy button, and professional/social links, including LinkedIn, GitHub, Khamsat, Nafezly, and WhatsApp.

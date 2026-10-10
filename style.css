@@ -2783,3 +2783,101 @@ html.page-loading body {
     display: none;
   }
 }
+
+/* =================================
+   TRYHACKME HIGHLIGHTS
+================================= */
+
+.thm-highlights-section {
+  background:
+    radial-gradient(ellipse at 85% 10%, rgba(0, 191, 255, 0.06), transparent 38%),
+    rgba(11, 18, 23, 0.48);
+}
+
+.thm-highlights-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 20px;
+}
+
+.thm-highlights-heading h2 {
+  margin: 8px 0;
+}
+
+.thm-highlights-description,
+.thm-highlights-status {
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+.thm-highlights-status {
+  min-height: 22px;
+  margin-bottom: 12px;
+  font-size: 0.84rem;
+}
+
+.thm-highlights-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.thm-highlight-card {
+  min-width: 0;
+  min-height: 150px;
+  padding: 20px;
+  background: linear-gradient(145deg, rgba(18, 29, 36, 0.9), rgba(11, 18, 23, 0.84));
+  border-color: rgba(150, 190, 205, 0.16);
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.thm-highlight-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(0, 191, 255, 0.38);
+}
+
+.thm-highlight-card[hidden] {
+  display: none;
+}
+
+.thm-highlight-icon {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  margin-bottom: 15px;
+  border: 1px solid rgba(0, 191, 255, 0.2);
+  border-radius: 10px;
+  background: rgba(0, 191, 255, 0.08);
+  color: var(--cyan);
+}
+
+.thm-highlight-label {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.thm-highlight-value {
+  margin-top: 5px;
+  color: var(--text);
+  font: 600 clamp(1.35rem, 2.8vw, 1.8rem) "JetBrains Mono", monospace;
+}
+
+@media (max-width: 700px) {
+  .thm-highlights-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .thm-highlights-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .thm-highlight-card {
+    min-height: 136px;
+    padding: 15px;
+  }
+}
