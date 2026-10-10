@@ -16,17 +16,6 @@ The site presents my background, technical skills, penetration-testing methodolo
 - Google Fonts and Font Awesome
 - FormSubmit for contact-form delivery
 
-## Deploy
-
-This is a static site. To publish it with GitHub Pages:
-
-1. Push the project to a GitHub repository.
-2. Open **Settings → Pages**.
-3. Select **Deploy from a branch**, then choose the branch and repository root containing the site files.
-4. Save and use the URL shown in the Pages settings.
-
-If deploying a fork or changing the recipient, update the FormSubmit endpoint and `_next` URL in `contact.html`. FormSubmit may require recipient verification before delivery.
-
 ## Project structure
 
 ```text
