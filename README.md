@@ -16,16 +16,6 @@ The site presents my background, technical skills, penetration-testing methodolo
 - Google Fonts and Font Awesome
 - FormSubmit for contact-form delivery
 
-## Run locally
-
-No build step or package installation is required. From the project directory, start a local web server:
-
-```bash
-python -m http.server 8000
-```
-
-Then open [http://localhost:8000](http://localhost:8000). Serving over HTTP supports the PDF viewer and local assets.
-
 ## Deploy
 
 This is a static site. To publish it with GitHub Pages:
